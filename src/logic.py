@@ -66,7 +66,7 @@ class Tristate:
 
 def tristate_all(tristates: [Tristate]) -> Tristate:
     """
-    Implementation of function all() for tristate logic (basically conjunction).
+    Implementation of function all() for tristate logic (logic conjunction).
 
     :param tristates: list of tristates (list of Tristate)
     :return: Tristate
@@ -81,7 +81,7 @@ def tristate_all(tristates: [Tristate]) -> Tristate:
 
 def tristate_any(tristates: [Tristate]) -> Tristate:
     """
-    Implementation of function any() for tristate logic (basically alternative).
+    Implementation of function any() for tristate logic ( logic alternative).
 
     :param tristates: list of tristates (list of Tristate)
     :return: Tristate
