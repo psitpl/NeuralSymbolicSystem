@@ -74,12 +74,7 @@ def act_f(f: str) -> callable:
     else:
         raise ValueError(f"There is no function named {f} in activation function list.")
 
-    def wrapped_f(x: float) -> float:
-        return raw_f(min(1.0, max(-1.0, x)))
-
-    setattr(wrapped_f, "d", raw_f.__getattribute__("d"))
-
-    return wrapped_f
+    return raw_f
 
 
 def to_binary(matrix: np.ndarray) -> np.ndarray:
@@ -187,7 +182,7 @@ def get_model(values: [int], order: [str]) -> dict:
 
 class NeuralNetwork3L:
 
-    def __init__(self, architecture: dict, factors: src.logic.Factors, eta=0.01):
+    def __init__(self, architecture: dict, factors: src.logic.Factors, eta=-0.01):
 
         self.architecture = architecture
 
@@ -397,6 +392,7 @@ class NeuralNetwork3L:
         > https://en.wikipedia.org/wiki/Delta_rule
 
         """
+        self.error = mean_squarred_error(y, self.out_layer_calculated)
         self.output_error = d_mean_squarred_error(y, self.out_layer_calculated)  # error in output
         self.output_delta = self.output_error * self.out_layer_activation_derivation(self.out_layer_aggregated)
 
@@ -414,10 +410,10 @@ class NeuralNetwork3L:
         h2o_weights_delta = np.outer(self.hid_layer_calculated.T, self.output_delta).T * eta
         self.h2o_connections += h2o_weights_delta * self.h2o_b
 
-        print(l2h_weights_delta)
-        print(h2o_weights_delta)
+        # print(l2h_weights_delta)
+        # print(h2o_weights_delta)
 
-        return sum(self.output_error) / len(self.output_error)
+        return sum(self.error) / len(self.error)
 
     def train(self, x: np.ndarray, y: np.ndarray, epochs: int, on_stabilised: bool = False,
               stop_when: callable = lambda e: e == 0, vis=False):
@@ -456,11 +452,12 @@ class NeuralNetwork3L:
 
         """
 
+        print(x)
+
         if x is None:
             x = np.array([-1 for _ in range(self.inp_layer_spec.len)])
         if len(x) != self.inp_layer_spec.len:
             raise ValueError(f"x must have length {self.inp_layer_spec.len}, has {len(x)} instead.")
-        x[-1] = 1
 
         last_output_vector = []
 
@@ -475,8 +472,7 @@ class NeuralNetwork3L:
 
             # TODO: Find where is bug
             last_output_vector = output_vector
-            input_vector = self.o2i_connections.dot(self.out_layer_aggregated)
-            input_vector[-1] = 1
+            input_vector = self.o2i_connections.dot(self.out_layer_calculated)
             output_vector = self.forward(input_vector)
 
             tp_iteration += 1
