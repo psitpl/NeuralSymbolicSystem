@@ -52,3 +52,7 @@ def sigm_d(x: float) -> float:
 
 
 setattr(sigm, 'd', sigm_d)
+
+
+def k(x, amin):
+    return x
