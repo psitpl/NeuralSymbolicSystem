@@ -395,7 +395,7 @@ class NeuralNetwork3L:
         > https://en.wikipedia.org/wiki/Delta_rule
 
         """
-        self.output_error = d_mean_squarred_error(y - self.out_layer_calculated)  # error in output
+        self.output_error = d_mean_squarred_error(y, self.out_layer_calculated)  # error in output
         self.output_delta = self.output_error * self.out_layer_activation_derivation(self.out_layer_calculated)
 
         # z2 error: how much our hidden layer weights contribute to output error
