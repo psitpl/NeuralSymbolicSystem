@@ -156,7 +156,7 @@ def set_weights(connections: [dict], prev_layer: LayerInfo, next_layer: LayerInf
     return weights
 
 
-def vectorize_with_report(f: callable) -> callable:
+def function_vector(fs: [callable]) -> callable:
 
     def try_(try_f: callable, *try_args, **try_kwargs):
         try:
@@ -167,8 +167,10 @@ def vectorize_with_report(f: callable) -> callable:
             print("kwargs:", try_kwargs)
             raise e
 
-    def vectorized(x: Iterable, *args, **kwargs):
-        return [try_(f, elem, *args, **kwargs) for elem in x]
+    def vectorized(vector):
+        if len(fs) != len(vector):
+            raise ValueError('Length of vector must be the same as length of function vector')
+        return [try_(f, x) for f, x in zip(fs, vector)]
 
     return vectorized
 
@@ -216,13 +218,13 @@ class NeuralNetwork3L:
         self.hid_layer_calculated = np.zeros(self.hid_layer_spec.len)
         self.out_layer_calculated = np.zeros(self.out_layer_spec.len)
 
-        self.inp_layer_activation = vectorize_with_report(act_f(self.inp_layer_spec.f[0]))
-        self.hid_layer_activation = vectorize_with_report(act_f(self.hid_layer_spec.f[0]))
-        self.out_layer_activation = vectorize_with_report(act_f(self.out_layer_spec.f[0]))
+        self.inp_layer_activation = function_vector([act_f(f) for f in self.inp_layer_spec.f])
+        self.hid_layer_activation = function_vector([act_f(f) for f in self.hid_layer_spec.f])
+        self.out_layer_activation = function_vector([act_f(f) for f in self.out_layer_spec.f])
 
-        self.inp_layer_activation_derivation = vectorize_with_report(act_f(self.inp_layer_spec.f[0]).__getattribute__('d'))
-        self.hid_layer_activation_derivation = vectorize_with_report(act_f(self.hid_layer_spec.f[0]).__getattribute__('d'))
-        self.out_layer_activation_derivation = vectorize_with_report(act_f(self.out_layer_spec.f[0]).__getattribute__('d'))
+        self.inp_layer_activation_derivation = function_vector([act_f(f).__getattribute__('d') for f in self.inp_layer_spec.f])
+        self.hid_layer_activation_derivation = function_vector([act_f(f).__getattribute__('d') for f in self.hid_layer_spec.f])
+        self.out_layer_activation_derivation = function_vector([act_f(f).__getattribute__('d') for f in self.out_layer_spec.f])
 
         self.errors = []
 
