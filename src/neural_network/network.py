@@ -396,13 +396,13 @@ class NeuralNetwork3L:
 
         """
         self.output_error = d_mean_squarred_error(y, self.out_layer_calculated)  # error in output
-        self.output_delta = self.output_error * self.out_layer_activation_derivation(self.out_layer_calculated)
+        self.output_delta = self.output_error * self.out_layer_activation_derivation(self.out_layer_aggregated)
 
         # z2 error: how much our hidden layer weights contribute to output error
         self.hidden_error = self.output_delta.dot(self.h2o_connections)
 
         # applying derivative of sigmoid to z2 error
-        self.hidden_delta = self.hidden_error * self.hid_layer_activation_derivation(self.hid_layer_calculated)
+        self.hidden_delta = self.hidden_error * self.hid_layer_activation_derivation(self.hid_layer_aggregated)
 
         # adjusting first set (input -> hidden) weights
         l2h_weights_delta = np.outer(self.inp_layer_calculated.T, self.hidden_delta).T * eta
