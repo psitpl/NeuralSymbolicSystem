@@ -7,9 +7,9 @@ import numpy as np
 
 import src.neural_network.activations
 
-inp_layer_example = [{"label": "A1", "activFunc": "sigm", "bias": 0.0, "idx": "inp1"},
-                     {"label": "A2", "activFunc": "sigm", "bias": 0.0, "idx": "inp2"},
-                     {"label": "A3", "activFunc": "sigm", "bias": 0.0, "idx": "inp3"}]
+inp_layer_example = [{"label": "A1", "activFunc": "idem", "bias": 0.0, "idx": "inp1"},
+                     {"label": "A2", "activFunc": "idem", "bias": 0.0, "idx": "inp2"},
+                     {"label": "A3", "activFunc": "idem", "bias": 0.0, "idx": "inp3"}]
 
 hid_layer_example = [{"label": "ha1", "activFunc": "sigm", "bias": 0.0, "idx": "hid1"},
                      {"label": "ha2", "activFunc": "sigm", "bias": 0.0, "idx": "hid2"}]
@@ -361,10 +361,10 @@ class NeuralNetwork3L:
         self.inp_layer_aggregated = x - self.inp_layer_spec.bias
         self.inp_layer_calculated = np.array(self.inp_layer_activation(self.inp_layer_aggregated))
 
-        self.hid_layer_aggregated = self.i2h_connections.dot(self.inp_layer_aggregated) - self.hid_layer_spec.bias
+        self.hid_layer_aggregated = self.i2h_connections.dot(self.inp_layer_calculated) - self.hid_layer_spec.bias
         self.hid_layer_calculated = np.array(self.hid_layer_activation(self.hid_layer_aggregated))
 
-        self.out_layer_aggregated = self.h2o_connections.dot(self.hid_layer_aggregated) - self.out_layer_spec.bias
+        self.out_layer_aggregated = self.h2o_connections.dot(self.hid_layer_calculated) - self.out_layer_spec.bias
         self.out_layer_calculated = np.array(self.out_layer_activation(self.out_layer_aggregated))
 
         return self.out_layer_calculated
