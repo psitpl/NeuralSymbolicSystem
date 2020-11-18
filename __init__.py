@@ -1,6 +1,8 @@
 import src
+import json
 
-recipe = src.logic.EXAMPLE_RECIPE
+with open('templates/example01.json', 'r') as json_file:
+    recipe = json.load(json_file)
 
 lp = src.logic.LogicProgram.from_dict(recipe['lp'])
 ag = src.logic.Clause.from_dict(recipe['abductive_goal'])

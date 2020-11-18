@@ -49,15 +49,17 @@ def d_mean_squarred_error(y, output):
     return 2 * (output - y)
 
 
-def valuation(x, a_min):
+def valuation(x, a_min, binary=False):
+    print("binary:", binary)
     if (type(x) == list) or (type(x) == np.ndarray):
         return [valuation(elem, a_min) for elem in x]
     else:
-        if x <= (-1 * a_min):
-            return -1
-        elif x >= a_min:
+        if x >= a_min:
             return 1
-        return 0
+        else:
+            if binary or x <= (-1 * a_min):
+                return -1
+            return 0
 
 
 def act_f(f: str) -> callable:
@@ -442,7 +444,7 @@ class NeuralNetwork3L:
                 if stop_when(avg_error):
                     return 0
 
-    def stabilize(self, x: Iterable = None):
+    def stabilize(self, x: Iterable = None, binary=False):
         """
         All inputs to -1
 
@@ -465,10 +467,10 @@ class NeuralNetwork3L:
         tp_iteration = 0
 
         print("Tp Operator iteration:", tp_iteration)
-        print("Output vector:", valuation(output_vector, self.factors.amin))
-        print("Model", get_model(valuation(output_vector, self.factors.amin), self.out_layer_spec.label))
+        print("Output vector:", valuation(output_vector, self.factors.amin, binary))
+        print("Model", get_model(valuation(output_vector, self.factors.amin, binary), self.out_layer_spec.label))
 
-        while valuation(last_output_vector, self.factors.amin) != valuation(output_vector, self.factors.amin):
+        while valuation(last_output_vector, self.factors.amin, binary) != valuation(output_vector, self.factors.amin, binary):
 
             # TODO: Find where is bug
             last_output_vector = output_vector
@@ -478,8 +480,8 @@ class NeuralNetwork3L:
             tp_iteration += 1
 
             print("Tp Operator iteration:", tp_iteration)
-            print("Output vector:", valuation(output_vector, self.factors.amin))
-            print("Model", get_model(valuation(output_vector, self.factors.amin), self.out_layer_spec.label))
+            print("Output vector:", valuation(output_vector, self.factors.amin, binary))
+            print("Model", get_model(valuation(output_vector, self.factors.amin, binary), self.out_layer_spec.label))
 
         return output_vector
 
@@ -492,6 +494,16 @@ class NeuralNetwork3L:
             io_pairs.append((list(x), y.tolist()))
 
         return io_pairs
+
+    def set_true(self, true: [str]) -> np.ndarray:
+
+        a = np.array([-1 for _ in range(self.inp_layer_spec.len)])
+        for true_neuron in true:
+            a[self.inp_layer_spec.label.index(true_neuron)] = 1
+
+        return a
+
+
 
 
 
