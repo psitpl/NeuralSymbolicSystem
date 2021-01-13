@@ -37,7 +37,7 @@ def get(f, phrase, url='http://207.154.220.61:10099/api/'):
 
     """
     request = Request(url+f, phrase.encode("utf-8"))
-    print(request.get_full_url())
+    # print(request.get_full_url())
     response = urlopen(request)
     html = response.read()
     response.close()

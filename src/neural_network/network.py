@@ -1,11 +1,11 @@
 import json
-import itertools
 from typing import List, Iterable
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 import src.neural_network.activations
+import src.toolbox as tb
 
 inp_layer_example = [{"label": "A1", "activFunc": "idem", "bias": 0.0, "idx": "inp1"},
                      {"label": "A2", "activFunc": "idem", "bias": 0.0, "idx": "inp2"},
@@ -50,12 +50,13 @@ def d_mean_squarred_error(y, output):
 
 
 def valuation(x, a_min, binary=False):
-    print("binary:", binary)
+    # print("binary:", binary)
     if (type(x) == list) or (type(x) == np.ndarray):
-        return [valuation(elem, a_min) for elem in x]
+        return [valuation(elem, a_min, binary) for elem in x]
     else:
         if x >= a_min:
             return 1
+
         else:
             if binary or x <= (-1 * a_min):
                 return -1
@@ -88,10 +89,6 @@ def to_binary(matrix: np.ndarray) -> np.ndarray:
 
     """
     return np.vectorize(bool)(matrix)
-
-
-def all_combinations(l: int) -> itertools.product:
-    return itertools.product([-1, 1], repeat=l)
 
 
 class LayerInfo:
@@ -281,10 +278,13 @@ class NeuralNetwork3L:
 
     def to_lp(self):
 
-        return src.connect.get_lp_from_nn(order_inp=[{"idx": idx, "label": label} for idx, label in zip(self.inp_layer_spec.idx, self.inp_layer_spec.label)],
-                                          order_out=[{"idx": idx, "label": label} for idx, label in zip(self.out_layer_spec.idx, self.out_layer_spec.label)],
-                                          amin=self.factors.amin,
-                                          io_pairs=self.get_io_pairs())
+        return src.connect.get_lp_from_nn(
+            order_inp=[label for label in self.inp_layer_spec.label],
+            order_out=[label for label in self.out_layer_spec.label],
+            # order_inp=[{"idx": idx, "label": label} for idx, label in zip(self.inp_layer_spec.idx, self.inp_layer_spec.label)],
+            # order_out=[{"idx": idx, "label": label} for idx, label in zip(self.out_layer_spec.idx, self.out_layer_spec.label)],
+            amin=self.factors.amin,
+            io_pairs=self.get_io_pairs())
 
     def draw(self, fig=None, ax=None, save: str = '',
              left: float = .1, right: float = .9, bottom: float = .1, top: float = .9):
@@ -454,7 +454,7 @@ class NeuralNetwork3L:
 
         """
 
-        print(x)
+        # print(x)
 
         if x is None:
             x = np.array([-1 for _ in range(self.inp_layer_spec.len)])
@@ -466,9 +466,9 @@ class NeuralNetwork3L:
         output_vector = self.forward(x)
         tp_iteration = 0
 
-        print("Tp Operator iteration:", tp_iteration)
-        print("Output vector:", valuation(output_vector, self.factors.amin, binary))
-        print("Model", get_model(valuation(output_vector, self.factors.amin, binary), self.out_layer_spec.label))
+        # print("Tp Operator iteration:", tp_iteration)
+        # print("Output vector:", valuation(output_vector, self.factors.amin, binary))
+        # print("Model", get_model(valuation(output_vector, self.factors.amin, binary), self.out_layer_spec.label))
 
         while valuation(last_output_vector, self.factors.amin, binary) != valuation(output_vector, self.factors.amin, binary):
 
@@ -479,14 +479,14 @@ class NeuralNetwork3L:
 
             tp_iteration += 1
 
-            print("Tp Operator iteration:", tp_iteration)
-            print("Output vector:", valuation(output_vector, self.factors.amin, binary))
-            print("Model", get_model(valuation(output_vector, self.factors.amin, binary), self.out_layer_spec.label))
+            # print("Tp Operator iteration:", tp_iteration)
+            # print("Output vector:", valuation(output_vector, self.factors.amin, binary))
+            # print("Model", get_model(valuation(output_vector, self.factors.amin, binary), self.out_layer_spec.label))
 
         return output_vector
 
     def get_io_pairs(self):
-        inputs = all_combinations(self.inp_layer_spec.len)
+        inputs = tb.all_combinations(self.inp_layer_spec.len)
         io_pairs = []
 
         for x in inputs:
