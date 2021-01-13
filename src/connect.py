@@ -71,7 +71,5 @@ def get_lp_from_nn(order_inp: [str], order_out: [str], amin: float, io_pairs: [t
                     "amin": amin,
                     "ioPairs": io_pairs}
     request_json = json.dumps(request_dict).replace('"', r'\"')
-    print(request_json)
     response = get('nn2lp', request_json)
-    print(response)
     return json.loads(response)
