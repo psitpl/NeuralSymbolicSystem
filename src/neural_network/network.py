@@ -1,44 +1,12 @@
 import json
 from typing import List, Iterable
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 
 import src.neural_network.activations
 import src.toolbox as tb
 
-inp_layer_example = [{"label": "A1", "activFunc": "idem", "bias": 0.0, "idx": "inp1"},
-                     {"label": "A2", "activFunc": "idem", "bias": 0.0, "idx": "inp2"},
-                     {"label": "A3", "activFunc": "idem", "bias": 0.0, "idx": "inp3"}]
-
-hid_layer_example = [{"label": "ha1", "activFunc": "sigm", "bias": 0.0, "idx": "hid1"},
-                     {"label": "ha2", "activFunc": "sigm", "bias": 0.0, "idx": "hid2"}]
-
-out_layer_example = [{"label": "A1", "activFunc": "sigm", "bias": 0.0, "idx": "out1"},
-                     {"label": "A2", "activFunc": "sigm", "bias": 0.0, "idx": "out2"}]
-
-connec_i2h_sample = [{'fromNeuron': 'inp1', 'toNeuron': 'hid1', 'weight': 0.1},
-                     {'fromNeuron': 'inp1', 'toNeuron': 'hid2', 'weight': 0.2},
-                     {'fromNeuron': 'inp2', 'toNeuron': 'hid1', 'weight': 0.3},
-                     {'fromNeuron': 'inp2', 'toNeuron': 'hid2', 'weight': 0.4},
-                     {'fromNeuron': 'inp3', 'toNeuron': 'hid1', 'weight': 0.3},
-                     {'fromNeuron': 'inp3', 'toNeuron': 'hid2', 'weight': 0.4}]
-
-connec_h2o_sample = [{'fromNeuron': 'hid1', 'toNeuron': 'out1', 'weight': 0.1},
-                     {'fromNeuron': 'hid1', 'toNeuron': 'out2', 'weight': 0.2},
-                     {'fromNeuron': 'hid2', 'toNeuron': 'out1', 'weight': 0.3},
-                     {'fromNeuron': 'hid2', 'toNeuron': 'out2', 'weight': 0.4}]
-
-connec_o2i_sample = [{'fromNeuron': 'out1', 'toNeuron': 'inp1', 'weight': 0.2},
-                     {'fromNeuron': 'out2', 'toNeuron': 'inp2', 'weight': 0.4}]
-
-architecture_example = {'inpLayer': inp_layer_example,
-                        'hidLayer': hid_layer_example,
-                        'outLayer': out_layer_example,
-                        'inpToHidConnections': connec_i2h_sample,
-                        'hidToOutConnections': connec_h2o_sample,
-                        'recConnections': connec_o2i_sample,
-                        'nn_factors': []}
 
 
 def mean_squarred_error(y, output):
@@ -182,6 +150,8 @@ def get_model(values: [int], order: [str]) -> dict:
 class NeuralNetwork3L:
 
     def __init__(self, architecture: dict, factors: src.logic.Factors, eta=-0.01):
+        
+        self.comments = []
 
         self.architecture = architecture
 
@@ -262,6 +232,8 @@ class NeuralNetwork3L:
         nn.h2o_b = to_binary(nn.h2o_connections)
         nn.o2i_b = to_binary(nn.o2i_connections)
 
+        nn.comments = dropped['comments']
+
         return nn
 
     def _pack(self) -> dict:
@@ -269,7 +241,8 @@ class NeuralNetwork3L:
                 'i2h_connections': self.i2h_connections.tolist(),
                 'h2o_connections': self.h2o_connections.tolist(),
                 'o2i_connections': self.o2i_connections.tolist(),
-                'factors': self.factors.to_dict()}
+                'factors': self.factors.to_dict(),
+                'comments': self.comments}
 
     def drop(self, fp: str):
         d = self._pack()
@@ -286,6 +259,7 @@ class NeuralNetwork3L:
             amin=self.factors.amin,
             io_pairs=self.get_io_pairs())
 
+    '''
     def draw(self, fig=None, ax=None, save: str = '',
              left: float = .1, right: float = .9, bottom: float = .1, top: float = .9):
         """
@@ -347,6 +321,7 @@ class NeuralNetwork3L:
     def plot_errors(self):
         plt.plot(self.errors)
         plt.show()
+    '''
 
     def calculate_input(self, x: np.ndarray = None):
         pass
@@ -434,7 +409,7 @@ class NeuralNetwork3L:
                 avg_error = self.backprop(y_, self.eta)
                 # self.update_weights(new_i2h_connections, new_h2o_connections, eta)
                 self.errors.append(avg_error)
-                print(f'Epoch {epoch + 1}/{epochs} | Example {i + 1}/{examples_n} | Error: {avg_error}')
+                # print(f'Epoch {epoch + 1}/{epochs} | Example {i + 1}/{examples_n} | Error: {avg_error}')
 
                 if vis:
                     if fig is not None:
@@ -465,7 +440,7 @@ class NeuralNetwork3L:
 
         output_vector = self.forward(x)
         tp_iteration = 0
-
+        
         # print("Tp Operator iteration:", tp_iteration)
         # print("Output vector:", valuation(output_vector, self.factors.amin, binary))
         # print("Model", get_model(valuation(output_vector, self.factors.amin, binary), self.out_layer_spec.label))
@@ -478,6 +453,12 @@ class NeuralNetwork3L:
             output_vector = self.forward(input_vector)
 
             tp_iteration += 1
+            
+            # TODO this has to change according to logic program
+            if tp_iteration >= 1000:
+                print('not stabilised')
+                self.comments.append('not stabilised')
+                break
 
             # print("Tp Operator iteration:", tp_iteration)
             # print("Output vector:", valuation(output_vector, self.factors.amin, binary))

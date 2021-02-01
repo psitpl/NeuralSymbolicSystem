@@ -57,7 +57,7 @@ def nn_params(source):
     # neural network factors
     nn_params["factors"] = neural_network["nnFactors"]
 
-    return json.dumps(nn_params)
+    return nn_params
 
 
 # summary od logic program parameters
@@ -94,6 +94,8 @@ def lp_params(source):
     atoms_bodies = []
 
     # CLAUSES PARAMS
+    #if isinstance(logic_program, list):
+    #    logic_program = { "lp" : logic_program }
     for i in range(len(logic_program["lp"]["clauses"])):
         # main params
         if logic_program["lp"]["clauses"][i]["tag"] == "Cl":
@@ -181,4 +183,4 @@ def lp_params(source):
     lp_params["facts"] += len(logic_program["lp"]["facts"])  # fakty
     lp_params["assumptions"] += len(logic_program["lp"]["assumptions"])  # assumptions
 
-    return json.dumps(lp_params)
+    return lp_params

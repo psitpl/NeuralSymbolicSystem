@@ -26,7 +26,8 @@ def post_json_file_and_save_to_file(url: str, path_from: str, path_to: str):
         json.dump(received_json, to_json_file)
 
 
-def get(f, phrase, url='http://207.154.220.61:10099/api/'):
+#def get(f, phrase, url='http://207.154.220.61:10099/api/'):
+def get(f, phrase, url='http://127.0.0.1:10100/api/'):
     """
     Opens url using Request library
 
@@ -70,6 +71,6 @@ def get_lp_from_nn(order_inp: [str], order_out: [str], amin: float, io_pairs: [t
                     "orderOut": order_out,
                     "amin": amin,
                     "ioPairs": io_pairs}
-    request_json = json.dumps(request_dict).replace('"', r'\"')
+    request_json = json.dumps(request_dict)#.replace('"', r'\"')
     response = get('nn2lp', request_json)
     return json.loads(response)
