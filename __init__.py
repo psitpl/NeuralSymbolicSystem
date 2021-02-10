@@ -36,7 +36,7 @@ def loop(recipe: str, param: dict) -> dict:
 
     data['nn_before'] = nn._pack()
 
-    nn.train(np.array([[-1, -1, -1, -1, -1, -1]]), np.array([[1, 1, 1, 1, 1]]), 2000, on_stabilised=True,
+    nn.train(np.array([[-1, -1, -1, -1]]), np.array([[-1, 1, -1]]), 1000, on_stabilised=True,
              stop_when=lambda e: e <= 0.02)
 
     data['nn_after'] = nn._pack()
@@ -55,16 +55,13 @@ def loop(recipe: str, param: dict) -> dict:
 def run_loop():
     recipe_path = 'templates/example01.json'
     params = [
-        {"ahln": 17, "bias": 0.0},
-        {"ahln": 1, "bias": 3.3},
-        {"ahln": 17, "bias": 3.3},
-        {"ahln": 1, "bias": 6.6},
-        {"ahln": 17, "bias": 6.6}
+        {"ahln": 1, "bias": 0.0},
+        {"ahln": 2, "bias": 0.0}
     ]
 
     for param in params:
         print(param)
-        for i in range(1000):
+        for i in range(100):
             print(f"example {i}")
             d = loop(recipe_path, param)
             json_name = f"output_jsons2/{str(i).zfill(4)}_{str(param['ahln']).zfill(2)}_{param['bias']}.json"
